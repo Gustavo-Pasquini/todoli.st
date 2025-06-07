@@ -8,7 +8,7 @@ interface Todo {
   completedAt?: number // timestamp em ms
 }
 
-const todos = ref<Todo[]>([])
+const todos = ref<Todo[]>(JSON.parse(localStorage.getItem("todos") || "[]"))
 const newTodo = ref('')
 let nextId = 1
 
@@ -31,6 +31,8 @@ function addTodo() {
       text: newTodo.value,
       createdAt: Date.now(),
     })
+    localStorage.setItem("todos", JSON.stringify(todos.value));
+    console.log(localStorage);
     newTodo.value = ''
   }
 }
@@ -39,6 +41,14 @@ function completeTodo(todo: Todo) {
   if (!todo.completedAt) {
     todo.completedAt = Date.now()
   }
+
+  const stored = localStorage.getItem("todos");
+
+  const todos: Todo[] = JSON.parse(stored || "[]");
+  const updatedTodos = todos.filter(todoRemove => todoRemove.id !== todo.id);
+
+  localStorage.setItem("todos", JSON.stringify(updatedTodos));
+
 }
 
 function getElapsed(todo: Todo) {
@@ -61,7 +71,7 @@ function getElapsed(todo: Todo) {
   <div class="todo-bg">
     <div class="todo-header">
       <img src="/assets/logo.png" alt="logo" style="height: 64px; width: 64px;" />
-      <h1>todoli.st</h1>
+      <h1>todoli_st</h1>
       <form @submit.prevent="addTodo" class="todo-form">
         <input v-model="newTodo" placeholder="nova tarefa..." autofocus />
         <button type="submit">adicionar</button>
@@ -75,7 +85,7 @@ function getElapsed(todo: Todo) {
           <span v-if="!todo.completedAt">tempo: {{ getElapsed(todo) }}</span>
           <span v-else>concluída em: {{ getElapsed(todo) }}</span>
         </div>
-        <button v-if="!todo.completedAt" @click="completeTodo(todo)">Concluir</button>
+        <button v-if="!todo.completedAt" @click="completeTodo(todo)">concluir</button>
       </div>
     </div>
   </div>
